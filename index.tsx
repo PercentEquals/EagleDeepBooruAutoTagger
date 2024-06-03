@@ -1,8 +1,8 @@
 import commandLineArgs from "command-line-args";
 import chalk from "chalk";
 
-import GetTags from "./lib/Python";
 import { CheckForEagle, CheckForPython, PrepareEnvironment, ValidateOptions } from "./lib/Setup";
+import TagImages from "./lib/Eagle";
 
 const optionDefinitions = [
     { name: 'path', type: String, defaultOption: true },
@@ -17,6 +17,8 @@ async function main() {
         await CheckForEagle();
         await CheckForPython();  
         await PrepareEnvironment();
+
+        await TagImages(options.path);
     } catch (e) {
         console.error(`[${chalk.red("ERROR")}] ${chalk.red(e)}`);
     }

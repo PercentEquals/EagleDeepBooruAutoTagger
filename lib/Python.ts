@@ -21,6 +21,8 @@ export default async function GetTags(filename: string) {
 
     results = results.slice(3);
     results = results.map(result =>
-        result.substring(result.indexOf(") "))
+        result.substring(result.indexOf(") ") + 2)
     );
+
+    return results;
 }
