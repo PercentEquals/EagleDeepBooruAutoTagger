@@ -27,6 +27,8 @@ export default async function TagImages(libraryPath: string) {
     .filter(object => object.isDirectory());
 
     for (let i = 0; i < dirs.length; i++) {
+        // TODO: rework it - get filename from json to ensure no thumbnail is taken...
+        // or add logic to first look for normal image then thumbnail
         const images = readdirSync(path.join(imagesPath, dirs[i].name), {
             withFileTypes: true,
             recursive: false
@@ -44,6 +46,7 @@ export default async function TagImages(libraryPath: string) {
         const metadataOriginalPath = path.join(imagesPath, dirs[i].name, "metadata.json.o");
 
         if (existsSync(metadataOriginalPath)) {
+            // TODO: add force command to also process already tagged... (maybe make it time specific? like only force from previous 24hr or smth)
             console.log(`[${i}/${dirs.length}] Skipping already tagged ${images[0].name}`);
         }
 
@@ -55,6 +58,7 @@ export default async function TagImages(libraryPath: string) {
 
         console.log(chalk.gray(JSON.stringify(json.tags)));
 
+        // TODO: before save check again if eagle is closed... never be too sure.
         writeJson(metadataPath, json);
     }
 
