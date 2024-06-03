@@ -1,0 +1,2 @@
+# EagleDeepBooruAutoTagger
+Eagle DeepBooru AutoTagger
