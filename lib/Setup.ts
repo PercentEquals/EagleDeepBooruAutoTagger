@@ -36,13 +36,14 @@ export async function CheckForPython() {
         throw new Error("No python 3 found!");
     }
 
-    console.log(`[${chalk.blue("INFO")}] Installed python version: ${chalk.bold(output.stdout)}`);
+    console.log(`[${chalk.blue("INFO")}] Installed python version: ${chalk.bold(output.stdout.trimEnd())}`);
 }
 
 export async function PrepareEnvironment() {
-    await execute(`python -m venv ${DDProject}`);
-    const output = await execute(
-        `cd ${DDProject} && .\\Scripts\\activate && pip install -r requirements.txt`);
+    console.log(`[${chalk.blue("INFO")}] Preparing environment. This might take a while...`);
 
-    console.log(output);
+    await execute(`python -m venv ${DDProject}`);
+    await execute(`${DDProject}\\Scripts\\pip install -r ${DDProject}\\requirements.txt`);
+
+    console.log(`[${chalk.blue("INFO")}] Environment prepared.`);
 }

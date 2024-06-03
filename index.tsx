@@ -1,6 +1,8 @@
 import commandLineArgs from "command-line-args";
-import { CheckForEagle, CheckForPython, PrepareEnvironment, ValidateOptions } from "./lib/Setup";
 import chalk from "chalk";
+
+import GetTags from "./lib/Python";
+import { CheckForEagle, CheckForPython, PrepareEnvironment, ValidateOptions } from "./lib/Setup";
 
 const optionDefinitions = [
     { name: 'path', type: String, defaultOption: true },
