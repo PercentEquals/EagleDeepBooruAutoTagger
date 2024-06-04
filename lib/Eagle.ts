@@ -54,16 +54,20 @@ export default async function TagImages(libraryPath: string) {
 
         console.log(`[${i}/${dirs.length}] Processing ${chalk.bold(images[0].name)}`);
 
-        const tags = await GetTags(imagePath)
-        const json = await readJson(metadataPath) as any;
+        try {
+            const tags = await GetTags(imagePath)
+            const json = await readJson(metadataPath) as any;
 
-        // TODO: add tag exclusion list...
-        json.tags = [...new Set([...json.tags, ...tags])];
+            // TODO: add tag exclusion list...
+            json.tags = [...new Set([...json.tags, ...tags])];
 
-        console.log(chalk.gray(JSON.stringify(json.tags)));
+            console.log(chalk.gray(JSON.stringify(json.tags)));
 
-        // TODO: before save check again if eagle is closed... never be too sure.
-        writeJson(metadataPath, json);
+            // TODO: before save check again if eagle is closed... never be too sure.
+            writeJson(metadataPath, json);
+        } catch (e) {
+            console.log(`[${chalk.red("ERROR")}] Skipping ${chalk.bold(images[0].name)} due to error: ${e}`)
+        }
     }
 
     console.log(`[${chalk.green("DONE")}] Remember to ${chalk.red("force reload Your Eagle library")}! If not You will probably want to revert...`);
