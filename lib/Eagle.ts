@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { copyFileSync, existsSync, readFileSync, readdirSync } from "fs";
+import { existsSync, readdirSync } from "fs";
 import path from "path";
 import GetTags from "./Python";
 import { readJson, writeJson } from "./File";
@@ -47,14 +47,18 @@ export default async function TagImages(libraryPath: string) {
 
         if (existsSync(metadataOriginalPath)) {
             // TODO: add force command to also process already tagged... (maybe make it time specific? like only force from previous 24hr or smth)
+            // possibly make it so instead of doing it this loop it wil just revert those files... maybe
             console.log(`[${i}/${dirs.length}] Skipping already tagged ${images[0].name}`);
+            continue;
         }
 
         console.log(`[${i}/${dirs.length}] Processing ${chalk.bold(images[0].name)}`);
 
         const tags = await GetTags(imagePath)
         const json = await readJson(metadataPath) as any;
-        json.tags = json.tags.concat(tags);
+
+        // TODO: add tag exclusion list...
+        json.tags = [...new Set([...json.tags, ...tags])];
 
         console.log(chalk.gray(JSON.stringify(json.tags)));
 
@@ -62,7 +66,7 @@ export default async function TagImages(libraryPath: string) {
         writeJson(metadataPath, json);
     }
 
-    console.log(`[${chalk.green("DONE")}] Remember to force reload Your Eagle library! If not You will probably want to revert...`);
+    console.log(`[${chalk.green("DONE")}] Remember to ${chalk.red("force reload Your Eagle library")}! If not You will probably want to revert...`);
 
     // TODO: add revert logic (aka restore metadataOriginalPath for non skipped elements)
 }

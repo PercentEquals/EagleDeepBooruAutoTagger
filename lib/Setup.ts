@@ -40,7 +40,7 @@ export async function CheckForPython() {
 }
 
 export async function PrepareEnvironment() {
-    console.log(`[${chalk.blue("INFO")}] Preparing environment. This might take a while...`);
+    console.log(`[${chalk.blue("INFO")}] Preparing environment. Elevated session might be required. This might take a while...`);
 
     await execute(`python -m venv ${DDProject}`);
     await execute(`${DDProject}\\Scripts\\pip install -r ${DDProject}\\requirements.txt`);

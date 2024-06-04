@@ -3,12 +3,16 @@ import chalk from "chalk";
 
 import { CheckForEagle, CheckForPython, PrepareEnvironment, ValidateOptions } from "./lib/Setup";
 import TagImages from "./lib/Eagle";
+import { argv } from "process";
 
 const optionDefinitions = [
     { name: 'path', type: String, defaultOption: true },
+    { name: 'no-prepare', type: Boolean }
 ]
 
-const options = commandLineArgs(optionDefinitions)
+const options = commandLineArgs(optionDefinitions, {
+    argv
+})
 
 async function main() {
     try {
@@ -16,7 +20,10 @@ async function main() {
 
         await CheckForEagle();
         await CheckForPython();  
-        await PrepareEnvironment();
+
+        if (!options["no-prepare"]) {
+            await PrepareEnvironment();
+        }
 
         await TagImages(options.path);
     } catch (e) {
