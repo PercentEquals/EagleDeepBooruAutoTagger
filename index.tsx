@@ -7,7 +7,7 @@ import { argv } from "process";
 
 const optionDefinitions = [
     { name: 'path', type: String, defaultOption: true },
-    { name: 'no-prepare', type: Boolean }
+    { name: 'force-prepare', type: Boolean }
 ]
 
 const options = commandLineArgs(optionDefinitions, {
@@ -21,9 +21,7 @@ async function main() {
         await CheckForEagle();
         await CheckForPython();  
 
-        if (!options["no-prepare"]) {
-            await PrepareEnvironment();
-        }
+        await PrepareEnvironment(options["force-prepare"]);
 
         await TagImages(options.path);
     } catch (e) {

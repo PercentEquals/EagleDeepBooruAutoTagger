@@ -1,2 +1,2 @@
-export const DDProject = ".\\deepdanbooru";
-export const DDModel = ".\\deepdanbooru-model";
+export const DDProject = ".\\DeepDanbooru";
+export const DDModel = ".\\DeepDanbooru-model";

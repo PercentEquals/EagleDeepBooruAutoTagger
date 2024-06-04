@@ -5,7 +5,7 @@ import GetTags from "./Python";
 import { readJson, writeJson } from "./File";
 
 let validExt = [
-    ".gif", ".png", ".pneg", ".jpg", ".jpeg"
+    ".png", ".pneg", ".jpg", ".jpeg"
 ];
 
 function isValidImage(filename: string) {

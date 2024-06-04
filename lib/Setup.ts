@@ -1,11 +1,13 @@
 import { CommandLineOptions } from "command-line-args";
-import { isValidPath } from "./File";
+import { downloadFile, isValidPath } from "./File";
+
+import AdmZip from "adm-zip";
 
 import path from "path";
 import fs from "fs";
 import execute, { isRunning } from "./Process";
 import chalk from "chalk";
-import { DDProject } from "../constants/Paths";
+import { DDModel, DDProject } from "../constants/Paths";
 
 export function ValidateOptions(options: CommandLineOptions) {  
     if (!options.path || !isValidPath(options.path)) {
@@ -39,8 +41,31 @@ export async function CheckForPython() {
     console.log(`[${chalk.blue("INFO")}] Installed python version: ${chalk.bold(output.stdout.trimEnd())}`);
 }
 
-export async function PrepareEnvironment() {
-    console.log(`[${chalk.blue("INFO")}] Preparing environment. Elevated session might be required. This might take a while...`);
+export async function PrepareEnvironment(forcePrepare: boolean) {
+    console.log(`[${chalk.blue("INFO")}] Preparing environment. This might take a while...`);
+
+    if ((fs.existsSync(DDProject) || fs.existsSync(DDModel)) && !forcePrepare) {
+        console.log(`[${chalk.blue("INFO")}] Looks like environment is already prepared. Skipping. Use --force-prepare to recreate env.`);
+    } else if ((fs.existsSync(DDProject) || fs.existsSync(DDModel)) && forcePrepare) {
+        console.log(`[${chalk.blue("INFO")}] Looks like environment is already prepared. Forcing recreation.`);
+
+        if (fs.existsSync(DDProject)) {
+            fs.rmSync(DDProject, { recursive: true });
+        }
+
+        if (fs.existsSync(DDModel)) {
+            fs.rmSync(DDModel, { recursive: true });
+        }
+
+        if (fs.existsSync('DeepDanbooru-model.zip')) {
+            fs.unlinkSync('DeepDanbooru-model.zip');
+        }
+    }
+
+    await execute(`git clone https://github.com/KichangKim/DeepDanbooru.git`);
+    await downloadFile('https://github.com/KichangKim/DeepDanbooru/releases/download/v3-20211112-sgd-e28/deepdanbooru-v3-20211112-sgd-e28.zip', 'DeepDanbooru-model.zip');
+
+    new AdmZip('DeepDanbooru-model.zip').extractAllTo(DDModel, true);
 
     await execute(`python -m venv ${DDProject}`);
     await execute(`${DDProject}\\Scripts\\pip install -r ${DDProject}\\requirements.txt`);
