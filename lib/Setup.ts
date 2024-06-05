@@ -46,6 +46,7 @@ export async function PrepareEnvironment(forcePrepare: boolean) {
 
     if ((fs.existsSync(DDProject) || fs.existsSync(DDModel)) && !forcePrepare) {
         console.log(`[${chalk.blue("INFO")}] Looks like environment is already prepared. Skipping. Use --force-prepare to recreate env.`);
+        return;
     } else if ((fs.existsSync(DDProject) || fs.existsSync(DDModel)) && forcePrepare) {
         console.log(`[${chalk.blue("INFO")}] Looks like environment is already prepared. Forcing recreation.`);
 
