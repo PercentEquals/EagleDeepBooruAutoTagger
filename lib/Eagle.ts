@@ -40,7 +40,7 @@ export default async function TagImages(libraryPath: string) {
                 continue;
             }
 
-            const imagePath = path.join(imagesPath, dirs[i].name, json.name + json.ext);
+            const imagePath = path.join(imagesPath, dirs[i].name, json.name + "." + json.ext);
             const tags = await GetTags(imagePath)
 
             // TODO: add tag exclusion list...
