@@ -38,7 +38,7 @@ async function TryTagImage(imagesPath: string, dir: Dirent) {
         // TODO: add tag exclusion list...
         json.tags = [...new Set([...json.tags, ...tags])];
 
-        console.log(chalk.gray(JSON.stringify(json.tags)));
+        console.log(`Processed ${chalk.bold(json.name)} =`, chalk.gray(JSON.stringify(json.tags)));
 
         // TODO: before save check again if eagle is closed... never be too sure.
         writeJson(metadataPath, json);
