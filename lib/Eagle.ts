@@ -3,6 +3,7 @@ import { Dirent, existsSync, readdirSync } from "fs";
 import path from "path";
 import GetTags from "./Python";
 import { readJson, writeJson } from "./File";
+import { CheckForEagle } from "./Setup";
 import { performance } from 'perf_hooks';
 
 import async from 'async';
@@ -14,23 +15,9 @@ let validExt = [
 async function TryTagImage(imagesPath: string, dir: Dirent) {
     try {
         const metadataPath = path.join(imagesPath, dir.name, "metadata.json");
-        const metadataOriginalPath = path.join(imagesPath, dir.name, "metadata.json.o");
-
         const json = await readJson(metadataPath) as any;
 
-        if (existsSync(metadataOriginalPath)) {
-            // TODO: add force command to also process already tagged... (maybe make it time specific? like only force from previous 24hr or smth)
-            // possibly make it so instead of doing it this loop it wil just revert those files... maybe
-            console.log(`Skipping already tagged ${json.name}`);
-            return;
-        }
-
         console.log(`Processing ${chalk.bold(json.name)}`);
-
-        if (!validExt.includes("." + json.ext)) {
-            console.log(`[${chalk.yellow("WARN")}] Skipping unsupported image type ${json.name}`);
-            return;
-        }
 
         const imagePath = path.join(imagesPath, dir.name, json.name + "." + json.ext);
         const tags = await GetTags(imagePath)
@@ -40,7 +27,7 @@ async function TryTagImage(imagesPath: string, dir: Dirent) {
 
         console.log(`Processed ${chalk.bold(json.name)} =`, chalk.gray(JSON.stringify(json.tags)));
 
-        // TODO: before save check again if eagle is closed... never be too sure.
+        await CheckForEagle();
         writeJson(metadataPath, json);
     } catch (e) {
         console.log(`[${chalk.red("ERROR")}] Skipping ${chalk.bold(dir.name)} due to error: ${e}`);
@@ -53,7 +40,27 @@ export default async function TagImages(libraryPath: string) {
         withFileTypes: true,
         recursive: false
     })
-    .filter(object => object.isDirectory());
+    .filter(object => object.isDirectory())
+    .filter(async (dir) => {
+        const metadataPath = path.join(imagesPath, dir.name, "metadata.json");
+        const metadataOriginalPath = path.join(imagesPath, dir.name, "metadata.json.o");
+
+        const json = await readJson(metadataPath) as any;
+
+        if (existsSync(metadataOriginalPath)) {
+            // TODO: add force command to also process already tagged... (maybe make it time specific? like only force from previous 24hr or smth)
+            // possibly make it so instead of doing it this loop it wil just revert those files... maybe
+            console.log(`Skipping already tagged ${json.name}`);
+            return false;
+        }
+
+        if (!validExt.includes("." + json.ext)) {
+            console.log(`[${chalk.yellow("WARN")}] Skipping unsupported image type ${json.name}`);
+            return false;
+        }
+
+        return true;
+    })
 
     var startTime = performance.now()
 
