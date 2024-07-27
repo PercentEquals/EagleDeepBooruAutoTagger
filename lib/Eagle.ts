@@ -17,7 +17,7 @@ async function TryTagImage(imagesPath: string, dir: Dirent) {
     const json = await readJson(metadataPath) as any;
 
     try {
-        console.log(`Processing ${chalk.bold(json.name)}`);
+        console.log(`[INFO] Processing ${chalk.bold(json.name)}`);
 
         const imagePath = path.join(imagesPath, dir.name, json.name + "." + json.ext);
         const tags = await GetTags(imagePath)
@@ -25,7 +25,7 @@ async function TryTagImage(imagesPath: string, dir: Dirent) {
         // TODO: add tag exclusion list...
         json.tags = [...new Set([...json.tags, ...tags])];
 
-        console.log(`Processed ${chalk.bold(json.name)} =`, chalk.gray(JSON.stringify(json.tags)));
+        console.log(`[INFO] Processed ${chalk.bold(json.name)} =`, chalk.gray(JSON.stringify(json.tags)));
 
         await CheckForEagle();
         writeJson(metadataPath, json);
@@ -50,7 +50,7 @@ export default async function TagImages(libraryPath: string) {
         if (existsSync(metadataOriginalPath)) {
             // TODO: add force command to also process already tagged... (maybe make it time specific? like only force from previous 24hr or smth)
             // possibly make it so instead of doing it this loop it wil just revert those files... maybe
-            console.log(`Skipping already tagged ${json.name}`);
+            console.log(`[INFO] Skipping already tagged ${json.name}`);
             return false;
         }
 
