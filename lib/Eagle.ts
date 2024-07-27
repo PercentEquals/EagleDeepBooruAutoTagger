@@ -1,12 +1,12 @@
 import chalk from "chalk";
 import { Dirent, existsSync, readdirSync } from "fs";
 import path from "path";
+import async from 'async';
 import GetTags from "./Python";
 import { readJson, writeJson } from "./File";
 import { CheckForEagle } from "./Setup";
 import { performance } from 'perf_hooks';
 
-import async from 'async';
 
 let validExt = [
     ".png", ".pneg", ".jpg", ".jpeg"
@@ -40,8 +40,11 @@ export default async function TagImages(libraryPath: string) {
         withFileTypes: true,
         recursive: false
     })
-    .filter(object => object.isDirectory())
-    .filter(async (dir) => {
+    .filter(object => object.isDirectory());
+
+    const dirsToTag: Dirent[] = [];
+
+    for (const dir of dirs) {
         const metadataPath = path.join(imagesPath, dir.name, "metadata.json");
         const metadataOriginalPath = path.join(imagesPath, dir.name, "metadata.json.o");
 
@@ -50,22 +53,24 @@ export default async function TagImages(libraryPath: string) {
         if (existsSync(metadataOriginalPath)) {
             // TODO: add force command to also process already tagged... (maybe make it time specific? like only force from previous 24hr or smth)
             // possibly make it so instead of doing it this loop it wil just revert those files... maybe
-            console.log(`[INFO] Skipping already tagged ${json.name}`);
-            return false;
+            //console.log(`[INFO] Skipping already tagged ${json.name}`);
+            continue;
         }
 
         if (!validExt.includes("." + json.ext)) {
-            console.log(`[${chalk.yellow("WARN")}] Skipping unsupported image type ${json.name}`);
-            return false;
+            //console.log(`[${chalk.yellow("WARN")}] Skipping unsupported image type ${json.name}`);
+            continue;
         }
 
-        return true;
-    })
+        dirsToTag.push(dir);
+    };
+
+    console.log(`[INFO] Images to process: ${dirsToTag.length} out of ${dirs.length}`);
 
     var startTime = performance.now()
 
     await async.eachLimit(
-        dirs,
+        dirsToTag,
         3, // +1 = +2GB of memory
         async (dir) => {
             await TryTagImage(imagesPath, dir);
