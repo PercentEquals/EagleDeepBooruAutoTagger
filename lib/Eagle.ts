@@ -13,10 +13,10 @@ let validExt = [
 ];
 
 async function TryTagImage(imagesPath: string, dir: Dirent) {
-    try {
-        const metadataPath = path.join(imagesPath, dir.name, "metadata.json");
-        const json = await readJson(metadataPath) as any;
+    const metadataPath = path.join(imagesPath, dir.name, "metadata.json");
+    const json = await readJson(metadataPath) as any;
 
+    try {
         console.log(`Processing ${chalk.bold(json.name)}`);
 
         const imagePath = path.join(imagesPath, dir.name, json.name + "." + json.ext);
@@ -30,7 +30,7 @@ async function TryTagImage(imagesPath: string, dir: Dirent) {
         await CheckForEagle();
         writeJson(metadataPath, json);
     } catch (e) {
-        console.log(`[${chalk.red("ERROR")}] Skipping ${chalk.bold(dir.name)} due to error: ${e}`);
+        console.log(`[${chalk.red("ERROR")}] Skipping ${chalk.bold(json.name)} due to error: ${e}`);
     }
 }
 
