@@ -48,6 +48,10 @@ export default async function TagImages(libraryPath: string) {
         const metadataPath = path.join(imagesPath, dir.name, "metadata.json");
         const metadataOriginalPath = path.join(imagesPath, dir.name, "metadata.json.o");
 
+        if (!existsSync(metadataPath)) {
+            continue;
+        }
+
         const json = await readJson(metadataPath) as any;
 
         if (existsSync(metadataOriginalPath)) {
