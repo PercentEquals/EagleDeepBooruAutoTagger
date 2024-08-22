@@ -64,12 +64,19 @@ export async function PrepareEnvironment(forcePrepare: boolean) {
     }
 
     await execute(`git clone https://github.com/KichangKim/DeepDanbooru.git`);
-    await downloadFile('https://github.com/KichangKim/DeepDanbooru/releases/download/v3-20211112-sgd-e28/deepdanbooru-v3-20211112-sgd-e28.zip', 'DeepDanbooru-model.zip');
+
+    if (!fs.existsSync('DeepDanbooru-model.zip')) {
+        await downloadFile('https://github.com/KichangKim/DeepDanbooru/releases/download/v3-20211112-sgd-e28/deepdanbooru-v3-20211112-sgd-e28.zip', 'DeepDanbooru-model.zip');
+    }
 
     new AdmZip('DeepDanbooru-model.zip').extractAllTo(DDModel, true);
 
     await execute(`python -m venv ${DDProject}`);
     await execute(`${DDProject}\\Scripts\\pip install -r ${DDProject}\\requirements.txt`);
+
+    if (fs.existsSync(path.join(DDProject, '.git'))) {
+        fs.rmSync(path.join(DDProject, '.git'), { recursive: true, force: true });
+    }
 
     console.log(`[${chalk.blue("INFO")}] Environment prepared.`);
 }
