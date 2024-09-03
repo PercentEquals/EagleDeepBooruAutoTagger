@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { Dirent, existsSync, readdirSync } from "fs";
+import { Dirent, existsSync, readdirSync, renameSync, unlinkSync } from "fs";
 import path from "path";
 import async from 'async';
 import GetTags from "./Python";
@@ -7,14 +7,36 @@ import { readJson, writeJson } from "./File";
 import { CheckForEagle } from "./Setup";
 import { performance } from 'perf_hooks';
 
+import type { MetadataJson } from "../types/Eagle";
 
 let validExt = [
     ".png", ".pneg", ".jpg", ".jpeg"
 ];
 
+async function PrepareImage(imagesPath: string, dir: Dirent) {
+    const metadataPath = path.join(imagesPath, dir.name, "metadata.json");
+
+    const json = await readJson(metadataPath) as MetadataJson;
+
+    if (json.ext === 'jpe' || json.ext === 'jfif') {
+        console.log(`[INFO] Converting ${chalk.bold(json.name + "." + json.ext)} -> ${chalk.bold(json.name + ".jpeg")}`);
+
+        const imagePath = path.join(imagesPath, dir.name, json.name + "." + json.ext);
+        const newImagePath = path.join(imagesPath, dir.name, json.name + ".jpeg");
+
+        if (!existsSync(newImagePath)) {
+            renameSync(imagePath, newImagePath);
+        }
+
+        json.ext = 'jpeg';
+    }
+
+    writeJson(metadataPath, json);
+}
+
 async function TryTagImage(imagesPath: string, dir: Dirent) {
     const metadataPath = path.join(imagesPath, dir.name, "metadata.json");
-    const json = await readJson(metadataPath) as any;
+    const json = await readJson(metadataPath) as MetadataJson;
 
     try {
         console.log(`[INFO] Processing ${chalk.bold(json.name)}`);
@@ -46,18 +68,16 @@ export default async function TagImages(libraryPath: string) {
 
     for (const dir of dirs) {
         const metadataPath = path.join(imagesPath, dir.name, "metadata.json");
-        const metadataOriginalPath = path.join(imagesPath, dir.name, "metadata.json.o");
 
         if (!existsSync(metadataPath)) {
             continue;
         }
 
-        const json = await readJson(metadataPath) as any;
+        await PrepareImage(imagesPath, dir);
 
-        if (existsSync(metadataOriginalPath)) {
-            // TODO: add force command to also process already tagged... (maybe make it time specific? like only force from previous 24hr or smth)
-            // possibly make it so instead of doing it this loop it wil just revert those files... maybe
-            //console.log(`[INFO] Skipping already tagged ${json.name}`);
+        const json = await readJson(metadataPath) as MetadataJson;
+
+        if (json.tags.length > 5) {
             continue;
         }
 

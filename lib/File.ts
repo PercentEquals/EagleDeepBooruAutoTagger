@@ -1,5 +1,6 @@
 import fs from "fs";
 import request from "request";
+import type { MetadataJson } from "../types/Eagle";
 
 export function isValidPath(path: string) {
     try {
@@ -25,13 +26,8 @@ export async function readJson(filepath: string) {
     })
 }
 
-export function writeJson(filepath: string, json: any) {
+export function writeJson(filepath: string, json: MetadataJson) {
     const jsonString = JSON.stringify(json);
-
-    if (fs.existsSync(filepath)) {
-        fs.copyFileSync(filepath, filepath + ".o");
-    }
-
     fs.writeFileSync(filepath, jsonString)
 }
 
