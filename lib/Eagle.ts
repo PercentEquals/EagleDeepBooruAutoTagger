@@ -13,27 +13,6 @@ let validExt = [
     ".png", ".pneg", ".jpg", ".jpeg"
 ];
 
-async function PrepareImage(imagesPath: string, dir: Dirent) {
-    const metadataPath = path.join(imagesPath, dir.name, "metadata.json");
-
-    const json = await readJson(metadataPath) as MetadataJson;
-
-    if (json.ext === 'jpe' || json.ext === 'jfif') {
-        console.log(`[INFO] Converting ${chalk.bold(json.name + "." + json.ext)} -> ${chalk.bold(json.name + ".jpeg")}`);
-
-        const imagePath = path.join(imagesPath, dir.name, json.name + "." + json.ext);
-        const newImagePath = path.join(imagesPath, dir.name, json.name + ".jpeg");
-
-        if (!existsSync(newImagePath)) {
-            renameSync(imagePath, newImagePath);
-        }
-
-        json.ext = 'jpeg';
-    }
-
-    writeJson(metadataPath, json);
-}
-
 async function TryTagImage(imagesPath: string, dir: Dirent) {
     const metadataPath = path.join(imagesPath, dir.name, "metadata.json");
     const json = await readJson(metadataPath) as MetadataJson;
@@ -72,8 +51,6 @@ export default async function TagImages(libraryPath: string) {
         if (!existsSync(metadataPath)) {
             continue;
         }
-
-        await PrepareImage(imagesPath, dir);
 
         const json = await readJson(metadataPath) as MetadataJson;
 
