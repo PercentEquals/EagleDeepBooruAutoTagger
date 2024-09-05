@@ -7,7 +7,8 @@ import { argv } from "process";
 
 const optionDefinitions = [
     { name: 'path', type: String, defaultOption: true },
-    { name: 'force-prepare', type: Boolean }
+    { name: 'force-prepare', type: Boolean },
+    { name: 'threads', type: Number, default: 1 }
 ]
 
 const options = commandLineArgs(optionDefinitions, {
@@ -23,7 +24,7 @@ async function main() {
 
         await PrepareEnvironment(options["force-prepare"]);
 
-        await TagImages(options.path);
+        await TagImages(options.path, options.threads ?? 1);
     } catch (e) {
         console.error(`[${chalk.red("ERROR")}] ${chalk.red(e)}`);
     }

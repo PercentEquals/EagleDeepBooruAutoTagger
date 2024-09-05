@@ -35,7 +35,7 @@ async function TryTagImage(imagesPath: string, dir: Dirent) {
     }
 }
 
-export default async function TagImages(libraryPath: string) {
+export default async function TagImages(libraryPath: string, threads: number) {
     const imagesPath = path.join(libraryPath, "images");
     const dirs = readdirSync(imagesPath, {
         withFileTypes: true,
@@ -72,7 +72,7 @@ export default async function TagImages(libraryPath: string) {
 
     await async.eachLimit(
         dirsToTag,
-        3, // +1 = +2GB of memory
+        threads, // +1 = +2GB of memory
         async (dir) => {
             await TryTagImage(imagesPath, dir);
         }
